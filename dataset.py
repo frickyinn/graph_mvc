@@ -8,8 +8,11 @@ from torch.utils import data
 
 class SpatialLIBD(data.Dataset):
     def __init__(self, path):
-        self.gene_expr = np.load(f'{path}/adatax_pca300.npy').astype(np.float32)
-        self.mae_feat = np.load(f'{path}/extracted_feature.npy').astype(np.float32)
+        self.x1 = np.load(f'{path}/adatax_pca300.npy').astype(np.float32)
+#         self.x2 = np.load(f'{path}/extracted_feature.npy').astype(np.float32)
+#         self.x2 = np.load(f'{path}/151673/151673_mae_imagenet_1024.npy').astype(np.float32)
+        self.x2 = np.load(f'{path}/151673/151673_mae_imagenet_spatialLIBD_1024.npy').astype(np.float32)
+        
         graph_dict = np.load(f'{path}/graphdict_pca300.npy', allow_pickle=True).item()
         df_meta = pd.read_csv(f'{path}/metadata.tsv', sep='\t')
 
@@ -29,9 +32,9 @@ class SpatialLIBD(data.Dataset):
         self.labels = pd.Categorical(df_meta['layer_guess']).codes
         self.len = len(self.labels)
 
-        self.xs = [self.gene_expr, self.mae_feat]
-        self.dims = [300, 768]
-        self.view = 2
+        self.xs = [self.x1, self.x1, self.x2, self.x2]
+        self.dims = [x.shape[1] for x in self.xs]
+        self.view = 4
         self.class_num = 7
 
     def __len__(self):
@@ -45,11 +48,11 @@ class SpatialLIBD(data.Dataset):
             np.array(idx)).long()
 
 
-def load_spatial_data(name):
-    dataset = SpatialLIBD(f'./data/spatialLIBD/{name}')
-    dims = [300, 768]
-    view = 2
-    data_size = 3611
-    class_num = 7
-
-    return dataset, dims, view, data_size, class_num
+# def load_spatial_data(name):
+#     dataset = SpatialLIBD(f'./data/spatialLIBD/{name}')
+#     dims = [300, 768]
+#     view = 2
+#     data_size = 3611
+#     class_num = 7
+#
+#     return dataset, dims, view, data_size, class_num
